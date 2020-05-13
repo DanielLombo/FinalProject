@@ -8,14 +8,18 @@ class App extends Component {
       positif: '',
       sembuh: '',
       meninggal: '',
+      positifI: '',
+      sembuhI: '',
+      meninggalI: '',
+      perawatanI: '',
       data: [],
       refresh: false,
     }
   }
 
-  componentDidMount =() =>{
+  componentDidMount = async () =>{
     this.setState({refresh: true})
-    fetch('https://covid19.mathdro.id/api')
+    await fetch('https://covid19.mathdro.id/api')
     .then(response => response.json())
         .then(json => (
             this.setState({positif: json.confirmed.value}),
@@ -23,9 +27,19 @@ class App extends Component {
             this.setState({meninggal: json.deaths.value})
         )
       )
-    fetch('https://indonesia-covid-19.mathdro.id/api/provinsi')
+    await fetch('https://indonesia-covid-19.mathdro.id/api/provinsi')
       .then(response => response.json())
-      .then(json => this.setState({data: json.data, refresh: false}))
+      .then(json => this.setState({data: json.data}))
+    await fetch('https://kawalcovid19.harippe.id/api/summary')
+      .then(response => response.json())
+      .then(json => (
+          this.setState({positifI: json.confirmed.value}),
+          this.setState({sembuhI: json.recovered.value}),
+          this.setState({meninggalI: json.deaths.value}),
+          this.setState({perawatanI: json.activeCare.value}),
+          this.setState({refresh: false})
+      )
+    )
   }
   
   render() {
@@ -65,12 +79,33 @@ class App extends Component {
           </TouchableOpacity>
         </View> */}
 
-        <View style={{ flex: 15, marginTop: 55, marginBottom: 10 }}>
+        <View style={{ flex: 15, marginTop: 35, marginBottom: 10 }}>
+
           <View style={{ marginBottom: 10, flexDirection: "row", justifyContent: "center" }}>
             <Text style={{ alignSelf: "center", fontSize: 20, fontWeight: "bold", marginRight: 10 }}>Indonesia</Text>
             <Image source={require('./assets/indo1.png')} style={{ height: 20, width: 20, marginTop: 5 }} />
           </View>
-        <View>
+
+          <View style={{ flex: 3, flexDirection: "row" }}>
+            <View style={{ flex: 1, backgroundColor: "#ffe505", marginBottom: 10, justifyContent: "center", marginHorizontal: 6, height: 50, borderWidth: 0.6, borderRadius: 6 }}>
+              <Text style={{ alignSelf: "center", fontWeight: "bold", fontSize: 10 }}>Positif</Text>
+              <Text style={{ fontWeight: "bold", alignSelf: "center", fontSize: 12 }}>{this.state.positifI}</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: "#05ff81", marginBottom: 10, justifyContent: "center", marginHorizontal: 6, height: 50, borderWidth: 0.6, borderRadius: 6 }}>
+              <Text style={{ alignSelf: "center", fontWeight: "bold", fontSize: 10 }}>Sembuh</Text>
+              <Text style={{ fontWeight: "bold", alignSelf: "center", fontSize: 12 }}>{this.state.sembuhI}</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: "#ff4141", marginBottom: 10, justifyContent: "center", marginHorizontal: 6, height: 50, borderWidth: 0.6, borderRadius: 6 }}>
+              <Text style={{ alignSelf: "center", fontWeight: "bold", fontSize: 10 }}>Meninggal</Text>
+              <Text style={{ fontWeight: "bold", alignSelf: "center", fontSize: 12 }}>{this.state.meninggalI}</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: "#7ba4ff", marginBottom: 10, justifyContent: "center", marginHorizontal: 6, height: 50, borderWidth: 0.6, borderRadius: 6 }}>
+              <Text style={{ alignSelf: "center", fontWeight: "bold", fontSize: 10 }}>Perawatan</Text>
+              <Text style={{ fontWeight: "bold", alignSelf: "center", fontSize: 12 }}>{this.state.perawatanI}</Text>
+            </View>
+          </View>
+
+        <View style={{ flex: 5 }}>
           <FlatList
             data={this.state.data}
             keyExtractor={item => item.fid.toString()}
@@ -99,7 +134,7 @@ class App extends Component {
         </View>
       </View>
 
-      <View style={{ flex: 15, marginTop: 35, marginBottom: 10 }}>
+      <View style={{ flex: 9, marginBottom: 10 }}>
           <View style={{ marginBottom: 10 }}>
             <Text style={{ alignSelf: "center", fontSize: 20, fontWeight: "bold"}}>Rumah Sakit Rujukan (Sulut)</Text>
           </View>
